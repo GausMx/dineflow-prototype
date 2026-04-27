@@ -62,7 +62,10 @@ export default function Menu({ cart, addToCart, openCheckout }) {
                     <p className="text-gray-500 text-sm leading-snug mb-4 line-clamp-2">{item.description}</p>
                   </div>
                   <div className="flex justify-between items-center mt-auto">
-                    <span className="font-bold text-lg">₦{item.price.toLocaleString()}</span>
+                    <div>
+                      <span className="font-bold text-lg text-charcoal">₦{item.price.toLocaleString()}</span>
+                      <span className="text-xs text-gray-400 ml-1">/ portion</span>
+                    </div>
                     <motion.button 
                       whileTap={{ scale: 0.9 }}
                       onClick={() => addToCart(item)}

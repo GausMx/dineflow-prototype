@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Check, ChefHat, Utensils, ArrowLeft } from 'lucide-react'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
 
 export default function Status({ currentOrder, updateOrderStatus }) {
   const navigate = useNavigate()
   const [stepIndex, setStepIndex] = useState(0)
+  const [liveOrder, setLiveOrder] = useState(currentOrder)
 
   const steps = [
     { label: "Paid", icon: Check, status: "Paid" },
@@ -13,32 +16,42 @@ export default function Status({ currentOrder, updateOrderStatus }) {
     { label: "Out for Delivery", icon: Utensils, status: "Delivery" }
   ]
 
+  // Keep liveOrder in sync if the parent passes a new currentOrder (like immediately after payment)
   useEffect(() => {
-    if (!currentOrder) {
+    setLiveOrder(currentOrder)
+  }, [currentOrder])
+
+  // Bulletproof real-time listener specifically for this single order
+  useEffect(() => {
+    if (!currentOrder || !currentOrder.id || currentOrder.id.startsWith('LOCAL')) return;
+    
+    const orderRef = doc(db, "orders", currentOrder.id)
+    const unsubscribe = onSnapshot(orderRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data()
+        setLiveOrder(prev => ({ ...prev, ...data, id: docSnapshot.id }))
+      }
+    })
+    
+    return () => unsubscribe()
+  }, [currentOrder?.id])
+
+  useEffect(() => {
+    if (!liveOrder) {
       navigate('/')
       return
     }
-
-    // Auto-progress status for demo purposes
-    if (currentOrder.status === 'Paid') {
-      const timer = setTimeout(() => updateOrderStatus(currentOrder.id, 'Kitchen'), 4000)
-      return () => clearTimeout(timer)
-    }
-    if (currentOrder.status === 'Kitchen') {
-      const timer = setTimeout(() => updateOrderStatus(currentOrder.id, 'Delivery'), 6000)
-      return () => clearTimeout(timer)
-    }
-  }, [currentOrder, updateOrderStatus, navigate])
+  }, [liveOrder, navigate])
 
   useEffect(() => {
-    if (currentOrder) {
-      const index = steps.findIndex(s => s.status === currentOrder.status)
+    if (liveOrder) {
+      const index = steps.findIndex(s => s.status === liveOrder.status)
       if (index !== -1) setStepIndex(index)
-      if (currentOrder.status === 'Served') setStepIndex(3) // Beyond our visual steps
+      if (liveOrder.status === 'Served') setStepIndex(3) // Beyond our visual steps
     }
-  }, [currentOrder])
+  }, [liveOrder])
 
-  if (!currentOrder) return (
+  if (!liveOrder) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center">
       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
         <Utensils size={32} className="text-gray-400" />
@@ -62,13 +75,13 @@ export default function Status({ currentOrder, updateOrderStatus }) {
         </button>
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-charcoal">Order Status</h2>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">Table {currentOrder.table} • <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-xs">#{currentOrder.id}</span></p>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Table {liveOrder.table} • <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-xs">#{liveOrder.id}</span></p>
         </div>
       </header>
 
       <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm border border-gray-100 p-8 sm:p-12 max-w-3xl mx-auto w-full">
         
-        {currentOrder.status === 'Served' ? (
+        {liveOrder.status === 'Served' ? (
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

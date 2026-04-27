@@ -61,7 +61,7 @@ export default function CheckoutDrawer({ isOpen, onClose, cart, updateQty, total
                         <button type="button" onClick={() => updateQty(item.id, -1)} className="p-1.5 bg-white rounded-full shadow-sm text-charcoal hover:bg-gray-100">
                           <Minus size={16} />
                         </button>
-                        <span className="font-semibold w-4 text-center text-sm">{item.qty}</span>
+                        <span className="font-semibold text-center text-sm w-16">{item.qty} {item.qty === 1 ? 'portion' : 'portions'}</span>
                         <button type="button" onClick={() => updateQty(item.id, 1)} className="p-1.5 bg-white rounded-full shadow-sm text-charcoal hover:bg-gray-100">
                           <Plus size={16} />
                         </button>

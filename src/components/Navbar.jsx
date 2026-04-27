@@ -11,6 +11,7 @@ export default function Navbar({ tableNumber, cartItemCount, cartTotal, openChec
     { name: 'Menu', path: '/' },
     { name: 'Order Status', path: '/status' },
     { name: 'Waiter Dashboard', path: '/dashboard' },
+    { name: 'Table QR Codes', path: '/qrcodes' },
   ]
 
   return (

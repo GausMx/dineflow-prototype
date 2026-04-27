@@ -31,29 +31,31 @@ export default function Dashboard({ orders, updateOrderStatus }) {
                 key={order.id}
                 className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col h-full"
               >
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className="bg-charcoal text-white text-xs font-bold px-2.5 py-1 rounded-md">
-                        Table {order.table}
+                <div className="mb-5">
+                  <div className="flex flex-wrap gap-2 items-center mb-3">
+                    <span className="bg-charcoal text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm">
+                      Table {order.table}
+                    </span>
+                    {order.orderType && (
+                      <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-md border border-gray-200">
+                        {order.orderType}
                       </span>
-                      {order.orderType && (
-                        <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-md">
-                          {order.orderType}
-                        </span>
-                      )}
-                      <span className="text-sm font-medium text-gray-400">#{order.id}</span>
+                    )}
+                    <div className={`px-2.5 py-1 rounded-md text-xs font-bold flex items-center space-x-1 ml-auto ${
+                      order.status === 'Paid' ? 'bg-blue-100 text-blue-700' :
+                      order.status === 'Kitchen' ? 'bg-orange-100 text-orange-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>
+                      <Clock size={12} />
+                      <span>{order.status}</span>
                     </div>
-                    <h3 className="text-xl font-bold text-charcoal mt-3">{order.customer}</h3>
                   </div>
                   
-                  <div className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 ${
-                    order.status === 'Paid' ? 'bg-blue-100 text-blue-700' :
-                    order.status === 'Kitchen' ? 'bg-orange-100 text-orange-700' :
-                    'bg-green-100 text-green-700'
-                  }`}>
-                    <Clock size={14} />
-                    <span>{order.status}</span>
+                  <div className="flex justify-between items-end mt-2">
+                    <h3 className="text-2xl font-bold text-charcoal truncate pr-4">{order.customer}</h3>
+                    <span className="text-xs font-mono font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                      #{order.id.slice(-6).toUpperCase()}
+                    </span>
                   </div>
                 </div>
 
